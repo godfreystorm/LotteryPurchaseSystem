@@ -1,0 +1,4 @@
+Mega Millions,2.0,WinningNumbers: [12,40,33,36,44]
+Power Ball,2.0,WinningNumbers: [26,12,33,41,11]
+Lotto Texas,1.0,WinningNumbers: [12,17,48,21,10]
+Texas Two Step,1.5,WinningNumbers: [46,25,33,22,42]
