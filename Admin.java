@@ -5,10 +5,12 @@ import java.io.IOException;
 public class Admin {
     private Scanner scanner;
     private UserDatabase userDatabase;
+    private ManageTicket manageTicket;
 
     public Admin(Scanner scanner, UserDatabase userDatabase) {
         this.scanner = scanner;
         this.userDatabase = userDatabase;
+        this.manageTicket = new ManageTicket("tickets.txt");
     }
 
     public boolean adminMenu() {
@@ -46,7 +48,7 @@ public class Admin {
                     break;
                 case 2:
                     // Placeholder for Manage Tickets functionality
-                    System.out.println("Manage Tickets option selected.");
+                    manageTicket.run();
                     break;
                 case 3:
                     return false; // Go back to the main menu

@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -6,6 +7,7 @@ public class Main {
     private static Scanner scanner = new Scanner(System.in);
     private static CurrentUser currentUser = new CurrentUser();
     private static Admin admin = new Admin(scanner, userDatabase);
+    
 
     public static void main(String[] args) {
         System.out.println("Welcome to the Lottery Purchase System");
@@ -136,22 +138,33 @@ public class Main {
     }
 
     private static void browseLotteryTickets() {
+    try {
+        TicketDatabase ticketDb = new TicketDatabase("tickets.txt"); // Replace with the actual path
+        List<String> tickets = ticketDb.getTickets();
+
         System.out.println("");
         System.out.println("These are the lottery tickets we have available, to choose from:");
-        System.out.println("1. Mega Millions - $2");
-        System.out.println("2. Power Ball - $2");
-        System.out.println("3. Lotto Texas - $1");
-        System.out.println("4. Texas Two Step - $1.50");
+
+        for (int i = 0; i < tickets.size(); i++) {
+            String ticket = tickets.get(i);
+            String[] ticketDetails = ticket.substring(1, ticket.indexOf(']')).split(",");
+            String ticketName = ticketDetails[0];
+            String ticketPrice = ticketDetails[1];
+            System.out.println((i + 1) + ". " + ticketName + " - $" + ticketPrice);
+        }
 
         int lotteryChoice = scanner.nextInt();
         scanner.nextLine(); // Consume the newline
 
-        if (lotteryChoice >= 1 && lotteryChoice <= 4) {
+        if (lotteryChoice >= 1 && lotteryChoice <= tickets.size()) {
             showLotteryOptions(lotteryChoice);
         } else {
-            System.out.println("Invalid choice. Please choose a number between 1 and 4.");
+            System.out.println("Invalid choice. Please choose a number between 1 and " + tickets.size() + ".");
         }
+    } catch (IOException e) {
+        System.out.println("Error reading tickets: " + e.getMessage());
     }
+}
 
     private static void showLotteryOptions(int lotteryChoice) {
         String lotteryName = getLotteryTypeName(lotteryChoice);
@@ -176,19 +189,22 @@ public class Main {
     }
 
     private static String getLotteryTypeName(int choice) {
-        switch (choice) {
-            case 1:
-                return "Mega Millions";
-            case 2:
-                return "Power Ball";
-            case 3:
-                return "Lotto Texas";
-            case 4:
-                return "Texas Two Step";
-            default:
-                return "Unknown Lottery Type";
+        try {
+            TicketDatabase ticketDb = new TicketDatabase("tickets.txt"); // Ensure this is the correct path
+            List<String> tickets = ticketDb.getTickets();
+    
+            if (choice >= 1 && choice <= tickets.size()) {
+                String ticket = tickets.get(choice - 1); // Adjust for zero-based index
+                String[] ticketDetails = ticket.substring(1, ticket.indexOf(']')).split(",");
+                return ticketDetails[0]; // Return the ticket name
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading tickets: " + e.getMessage());
         }
+        return "Unknown Lottery Type";
     }
+    
+
 
     private static void showOrderHistory() {
         System.out.println("\n1. Back to menu");
