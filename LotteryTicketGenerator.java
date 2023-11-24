@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.io.IOException;
@@ -66,33 +67,34 @@ public class LotteryTicketGenerator {
         return numbers;
     }
 
-    private static String getLotteryTypeName(int choice) {
-        switch (choice) {
-            case 1:
-                return "Mega Millions";
-            case 2:
-                return "Power Ball";
-            case 3:
-                return "Lotto Texas";
-            case 4:
-                return "Texas Two Step";
-            default:
-                return "Unknown Lottery Type";
+        private static String getLotteryTypeName(int choice) {
+        try {
+            TicketDatabase ticketDb = new TicketDatabase("tickets.txt");
+            List<String> tickets = ticketDb.getTickets();
+            if (choice >= 1 && choice <= tickets.size()) {
+                String ticket = tickets.get(choice - 1);
+                String[] ticketDetails = ticket.substring(1, ticket.indexOf(']')).split(",");
+                return ticketDetails[0];
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading tickets: " + e.getMessage());
         }
+        return "Unknown Lottery Type";
     }
 
     private static double getTicketPrice(int choice) {
-        switch (choice) {
-            case 1:
-            case 2:
-                return 2.0;
-            case 3:
-                return 1.0;
-            case 4:
-                return 1.5;
-            default:
-                return 0.0; // Default to 0.0 for an invalid choice
+        try {
+            TicketDatabase ticketDb = new TicketDatabase("tickets.txt");
+            List<String> tickets = ticketDb.getTickets();
+            if (choice >= 1 && choice <= tickets.size()) {
+                String ticket = tickets.get(choice - 1);
+                String[] ticketDetails = ticket.substring(1, ticket.indexOf(']')).split(",");
+                return Double.parseDouble(ticketDetails[1]);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading tickets: " + e.getMessage());
         }
+        return 0.0;
     }
 
     private static int generateRandomTicketId() {

@@ -120,13 +120,13 @@ public class Main {
                     // Browse Previous Winning Numbers logic
                     break;
                 case 3:
-                    // Profile Page logic
+                    showUserProfile();
                     break;
                 case 4:
                     showOrderHistory();
                     break;
                 case 5:
-                    // Search for a Specific Ticket logic
+                    searchForTicket(scanner);
                     break;
                 case 6:
                     System.out.println("\nLogging out...\n");
@@ -217,6 +217,122 @@ public class Main {
             }
         } else {
             System.out.println("No past orders available.");
+        }
+    }
+
+    private static void searchForTicket(Scanner scanner) {
+        System.out.print("Enter TicketID (If you do not know ticket ID, check orders history): ");
+        int ticketId = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline
+    
+        User currentUser = CurrentUser.getUser();
+        if (currentUser != null) {
+            OrderHistory orderHistory = currentUser.getOrderHistory();
+            List<String> ticketHistory = orderHistory.getTicketHistory();
+            boolean ticketFound = false;
+    
+            for (String ticket : ticketHistory) {
+                if (ticket.contains("Ticket ID: " + ticketId)) {
+                    System.out.println("Ticket Found: " + ticket);
+                    ticketFound = true;
+                    break;
+                }
+            }
+    
+            if (!ticketFound) {
+                System.out.println("Ticket ID not found in your order history.");
+            }
+        } else {
+            System.out.println("No user currently logged in.");
+        }
+    }
+
+    private static void showUserProfile() {
+        User user = CurrentUser.getUser();
+        if (user != null) {
+            System.out.println("Profile Details:");
+            System.out.println("Name: " + user.getName());
+            System.out.println("Email: " + user.getEmail());
+            System.out.println("Password: " + user.getPassword());
+            System.out.println("Phone Number: " + user.getPhoneNumber());
+            System.out.println("Age: " + user.getAge());
+    
+            System.out.println("\n1. Edit Profile Info");
+            System.out.println("2. Back");
+            System.out.print("Enter your choice: ");
+    
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline
+    
+            if (choice == 1) {
+                editUserProfile();
+            }
+            // No need to handle 'Back' as it will just return to the previous menu
+        } else {
+            System.out.println("No user currently logged in.");
+        }
+    }
+
+    private static void editUserProfile() {
+        User user = CurrentUser.getUser();
+        if (user == null) {
+            System.out.println("No user currently logged in.");
+            return;
+        }
+    
+        System.out.println("\nSelect the information you want to edit:");
+        System.out.println("1. Name");
+        System.out.println("2. Email");
+        System.out.println("3. Password");
+        System.out.println("4. Phone Number");
+        System.out.println("5. Age");
+        System.out.println("6. Back");
+        System.out.print("Enter your choice: ");
+    
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline
+    
+        if (choice == 6) return; // Back to profile page
+        
+    
+        System.out.print("Enter new value: ");
+        String newValue = scanner.nextLine();
+
+        boolean emailChanged = false;
+    
+        switch (choice) {
+            case 1:
+                user.setName(newValue);
+                break;
+            case 2:
+                user.setEmail(newValue);
+                emailChanged = true;
+                break;
+            case 3:
+                user.setPassword(newValue);
+                break;
+            case 4:
+                user.setPhoneNumber(newValue);
+                break;
+            case 5:
+                user.setAge(Integer.parseInt(newValue));
+                break;
+            default:
+                System.out.println("Invalid choice.");
+                return;
+        }
+    
+        try {
+            userDatabase.updateUser(user); // Update user in the database
+            System.out.println("Profile updated successfully.");
+    
+            if (emailChanged) {
+                CurrentUser.clearUser(); // Clear the current user session
+                System.out.println("Email updated successfully.");
+                return; // Return to main menu for the user to log in again
+            }
+        } catch (IOException e) {
+            System.out.println("Error updating profile: " + e.getMessage());
         }
     }
 }

@@ -33,22 +33,22 @@ public class UserDatabase {
 
     public void updateUser(User updatedUser) throws IOException {
         Map<String, User> users = getAllUsers();
-        User existingUser = users.get(updatedUser.getEmail());
     
-        if (existingUser != null) {
-            // Ensure that only new tickets are added to the existing history
-            List<String> existingHistory = existingUser.getOrderHistory().getTicketHistory();
-            List<String> newHistory = updatedUser.getOrderHistory().getTicketHistory();
-    
-            // Remove any duplicate entries from the new history
-            newHistory.removeAll(existingHistory);
-            existingHistory.addAll(newHistory); // Append only new tickets to existing history
-    
-            updatedUser.getOrderHistory().setTicketHistory(existingHistory);
-    
-            users.put(updatedUser.getEmail(), updatedUser); // Replace the user in the map
+        // Check if the user's email exists in the map. If not, it's a new email.
+        if (!users.containsKey(updatedUser.getEmail())) {
+            // Remove any existing entry with the old email.
+            for (Map.Entry<String, User> entry : users.entrySet()) {
+                if (entry.getValue().getName().equals(updatedUser.getName())) {
+                    users.remove(entry.getKey());
+                    break; // Break after removing the old entry
+                }
+            }
         }
     
+        // Update the user with the new email (or existing email if not changed).
+        users.put(updatedUser.getEmail(), updatedUser);
+    
+        // Save the updated users map to the file.
         saveAllUsers(users);
     }
     
